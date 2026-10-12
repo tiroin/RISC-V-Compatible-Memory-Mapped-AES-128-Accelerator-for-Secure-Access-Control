@@ -1,0 +1,35 @@
+V2 Architecture
+===============
+
+                 CPU-like Testbench / Future RISC-V CPU
+                              |
+                              | MMIO read/write
+                              v
++-----------------------------------------------------------------+
+|                   AES MMIO Wrapper                              |
+|                                                                 |
+| CTRL | STATUS | KEY0-3 | PT0-3 | CT0-3 | LATENCY               |
++------------------------------+----------------------------------+
+                               |
+                               | start/key/challenge block
+                               v
++-----------------------------------------------------------------+
+|                   AES-128 Hardware Core                         |
+|              response = AES_Encrypt(challenge, key)             |
++------------------------------+----------------------------------+
+                               |
+                               v
++-----------------------------------------------------------------+
+|             Dynamic Challenge-Response Access Control            |
+|                                                                 |
+| check_ciphertext == expected_ciphertext  -> unlock              |
+| mismatch 3 times                         -> alarm + lockout     |
++-----------------------------------------------------------------+
+
+Challenge construction:
+
+    challenge_block = password_block XOR nonce
+
+Security upgrade:
+
+    Old ciphertext responses are rejected when the nonce changes.
